@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const movimientoRoutes = require('./routes/movimientos');
 const deudasRoutes = require('./routes/deudas');
 const { sequelize } = require('./models');
+const ahorroRoutes = require('./routes/ahorrosCompartidos');
 
 // const sequelize = require('./config/db');
 
@@ -18,7 +19,9 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/movimientos', movimientoRoutes);
 app.use('/api/deudas', deudasRoutes);
+app.use('/api/ahorros-compartidos', ahorroRoutes);
 
+// Middleware para manejar errores
 const PORT = process.env.PORT || 3000;
 
 sequelize.authenticate()
