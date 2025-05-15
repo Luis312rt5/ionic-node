@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 require('./cron');
+const router = express.Router();
+
 
 const authRoutes = require('./routes/auth');
 const movimientoRoutes = require('./routes/movimientos');
@@ -19,7 +21,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/movimientos', movimientoRoutes);
 app.use('/api/deudas', deudasRoutes);
-app.use('/api/ahorros-compartidos', ahorroRoutes);
+app.use('/api/ahorrosCompartidos', ahorroRoutes);
 
 // Middleware para manejar errores
 const PORT = process.env.PORT || 3000;
@@ -36,3 +38,4 @@ sequelize.authenticate()
     console.error('🔴 Error al conectar a MySQL:', err);
   });
 
+module.exports = router;

@@ -52,3 +52,6 @@ router.post('/:id/aportar', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error al realizar el aporte' });
   }
 });
+
+module.exports = router;
+

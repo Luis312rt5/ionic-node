@@ -1,8 +1,9 @@
-// Importar Sequelize
-const sequelize = new Sequelize('finanzasdb', 'root', '1234', {
+const { Sequelize } = require('sequelize');
+
+const sequelize = new Sequelize('finanzasdb', 'root', 'Luchos21', {
   host: 'localhost',
   dialect: 'mysql',
-  logging: false, // true si quieres ver consultas SQL en consola
+  logging: false,
 });
 
 module.exports = sequelize;
