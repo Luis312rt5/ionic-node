@@ -1,65 +1,78 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
 const verifyToken = require('../middleware/authMiddleware');
+const { Deuda, User } = require('../models');
 const { enviarCorreoDeuda } = require('../utils/mailer');
 
-// GET - Obtener deudas
+// GET - Obtener deudas del usuario
 router.get('/', verifyToken, async (req, res) => {
-  const userId = req.user.userId; // ✅ Accedemos de manera consistente
+  const userId = req.user.userId;
+
   try {
-    const [deudas] = await pool.query(
-      'SELECT * FROM deudas WHERE user_id = ? ORDER BY fecha DESC',
-      [userId]
-    );
+    const deudas = await Deuda.findAll({
+      where: { user_id: userId },
+      order: [['fecha', 'DESC']]
+    });
+
     res.json(deudas);
   } catch (error) {
+    console.error('Error al obtener deudas:', error);
     res.status(500).json({ error: 'Error al obtener las deudas' });
   }
 });
 
-// POST - Registrar deuda
+// POST - Registrar una nueva deuda
 router.post('/', verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { descripcion, monto } = req.body;
 
-  console.log('Datos recibidos:', { userId, descripcion, monto });
-
   try {
-    const [userRows] = await pool.query('SELECT email FROM users WHERE id = ?', [userId]);
-    if (userRows.length === 0) {
+    // Buscar el correo del usuario
+    const user = await User.findByPk(userId);
+    if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    const correoUsuario = userRows[0].email;
-
-    const [result] = await pool.query(
-      'INSERT INTO deudas (user_id, descripcion, monto, fecha) VALUES (?, ?, ?, NOW())',
-      [userId, descripcion, monto]
-    );
-
-    // Enviar correo de confirmación
-    await enviarCorreoDeuda(correoUsuario, {
+    // Crear la deuda
+    const nuevaDeuda = await Deuda.create({
+      user_id: userId,
       descripcion,
       monto
     });
 
-    res.json({ id: result.insertId, descripcion, monto });
+    // Enviar correo de confirmación
+    await enviarCorreoDeuda(user.email, {
+      descripcion,
+      monto
+    });
+
+    res.json(nuevaDeuda);
   } catch (error) {
-    console.error('ERROR EN BACKEND:', error);
+    console.error('Error al registrar la deuda:', error);
     res.status(500).json({ error: 'Error al registrar la deuda' });
   }
 });
 
-
-// DELETE - Eliminar deuda
+// DELETE - Eliminar deuda por ID
 router.delete('/:id', verifyToken, async (req, res) => {
-  const userId = req.user.userId; // ✅ Accedemos de manera consistente
+  const userId = req.user.userId;
   const { id } = req.params;
+
   try {
-    await pool.query('DELETE FROM deudas WHERE id = ? AND user_id = ?', [id, userId]);
+    const eliminada = await Deuda.destroy({
+      where: {
+        id,
+        user_id: userId
+      }
+    });
+
+    if (eliminada === 0) {
+      return res.status(404).json({ error: 'Deuda no encontrada' });
+    }
+
     res.json({ message: 'Deuda eliminada' });
   } catch (error) {
+    console.error('Error al eliminar deuda:', error);
     res.status(500).json({ error: 'Error al eliminar la deuda' });
   }
 });
