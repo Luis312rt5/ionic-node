@@ -40,6 +40,34 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// Actualizar un movimiento por ID
+router.put('/:id', authMiddleware, async (req, res) => {
+  const userId = req.user.userId;
+  const { id } = req.params;
+  const { tipo, cantidad, descripcion, fecha } = req.body;
+
+  try {
+    const movimiento = await Movimiento.findOne({
+      where: {
+        id,
+        user_id: userId
+      }
+    });
+
+    if (!movimiento) {
+      return res.status(404).json({ message: 'Movimiento no encontrado' });
+    }
+
+    await movimiento.update({ tipo, cantidad, descripcion, fecha });
+
+    res.json({ message: 'Movimiento actualizado correctamente', movimiento });
+  } catch (error) {
+    console.error('Error al actualizar movimiento:', error);
+    res.status(500).json({ message: 'Error al actualizar movimiento' });
+  }
+});
+
+
 // Eliminar un movimiento por ID
 router.delete('/:id', authMiddleware, async (req, res) => {
   const userId = req.user.userId;
