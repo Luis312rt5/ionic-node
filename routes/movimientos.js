@@ -22,7 +22,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
 // Agregar movimiento (ingreso o gasto)
 router.post('/', authMiddleware, async (req, res) => {
-  const { tipo, cantidad, descripcion } = req.body;
+  const { tipo, cantidad, descripcion, fecha } = req.body;
   const userId = req.user.userId;
 
   try {
@@ -30,7 +30,8 @@ router.post('/', authMiddleware, async (req, res) => {
       user_id: userId,
       tipo,
       cantidad,
-      descripcion
+      descripcion,
+      fecha
     });
 
     res.status(201).json({ message: 'Movimiento agregado correctamente', movimiento });
