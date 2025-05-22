@@ -18,8 +18,10 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = function(models) {
     User.hasMany(models.Movimiento, { foreignKey: 'user_id' });
     User.hasMany(models.Deuda, { foreignKey: 'user_id' });
+
+    // ✅ Relación necesaria para que funcione el include
+    User.hasMany(models.Aporte, { foreignKey: 'usuario_id', as: 'aportes' });
   };
 
   return User;
 };
-// Compare this snippet from migrations/20250515072316-create-users.js:

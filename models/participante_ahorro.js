@@ -14,10 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'usuario'
     });
 
-    ParticipanteAhorro.belongsTo(models.AhorroCompartido, {
-      foreignKey: 'ahorro_id',
-      as: 'ahorro'
-    });
+
+
+  ParticipanteAhorro.belongsTo(models.AhorroCompartido, {
+    foreignKey: 'ahorro_id',
+    as: 'ahorro_compartido'
+  });
   };
 
   return ParticipanteAhorro;
